@@ -32,6 +32,7 @@ void AMazeManager::GenerateMazeGrid()
 	AddFixedZone();
     GenerateMazeDFS();
     BreakMazeWalls();
+	AddFixedZone();
 }
 
 void AMazeManager::InitializeMazeGrid()
@@ -48,14 +49,30 @@ void AMazeManager::InitializeMazeGrid()
 
 void AMazeManager::AddFixedZone()
 {
-	FIntPoint Middle = GridSize / 2;
-	MazeGrid[Middle.Y][Middle.X] = ETileType::Empty;
+	const int PatternPacManHeight = 5;
+	const int PatternPacManWidth = 5;
+	int PatternPacMan[PatternPacManHeight][PatternPacManWidth]{
+		{0, 0, 0, 0, 0},
+		{0, 1, 1, 1, 0},
+		{0, 1, 0, 1, 0},
+		{0, 1, 0, 1, 0},
+		{0, 0, 0, 0, 0},
+	};
+	for (int Y = 0; Y < PatternPacManHeight; Y++)
+		for (int X = 0; X < PatternPacManWidth; X++)
+			MazeGrid[GridSize.Y / 2 - PatternPacManHeight / 2 + Y][GridSize.X / 2 - PatternPacManWidth / 2 + X] = PatternPacMan[Y][X] == 1 ? ETileType::Wall : ETileType::Empty;
 
-	// [0, 1, 0, 0, 0, 1, 0];
-	// [0, 1, 1, 0, 1, 1, 0];
-	// [0, 0, 0, 0, 0, 0, 0];
+	const int PatternHeight = 3;
+	const int PatternWidth = 7;
+	int Pattern[PatternHeight][PatternWidth]{
+		{0, 1, 0, 0, 0, 1, 0},
+		{0, 1, 1, 0, 1, 1, 0},
+		{0, 0, 0, 0, 0, 0, 0},
+	};
+	for (int Y = 0; Y < PatternHeight; Y++)
+		for (int X = 0; X < PatternWidth; X++)
+			MazeGrid[GridSize.Y - 2 - Y][GridSize.X / 2 - PatternWidth / 2 + X] = Pattern[Y][X] == 1 ? ETileType::Wall : ETileType::Empty;
 }
-
 
 void AMazeManager::GenerateMazeDFS()
 {
