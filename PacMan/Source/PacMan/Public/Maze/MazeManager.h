@@ -1,9 +1,9 @@
 /*
-Author:
+    Author:
 		>> Nathan TIROLF - { ntirolf@etu.uqac.ca }
 
-		(„• ֊ •„)❤  <  Have a good day !
-		--U-----U------------------------
+    („• ֊ •„)❤  <  Have a good day !
+    --U-----U------------------------
 */
 
 

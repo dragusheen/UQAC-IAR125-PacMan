@@ -1,9 +1,9 @@
 ﻿/*
-Author:
+	Author:
 		>> Nathan TIROLF - { ntirolf@etu.uqac.ca }
 
-		(„• ֊ •„)❤  <  Have a good day !
-		--U-----U------------------------
+    („• ֊ •„)❤  <  Have a good day !
+    --U-----U------------------------
 */
 
 
@@ -40,6 +40,9 @@ protected:
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	TMap<FString, UPaperSprite*> SpriteMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	UPaperSprite* DefaultSprite;
 
 	virtual void OnConstruction(const FTransform& Transform) override;
 	void SetNeighbor(const bool N, const bool S, const bool E, const bool O);

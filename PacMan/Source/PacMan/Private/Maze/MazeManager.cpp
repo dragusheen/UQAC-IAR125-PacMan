@@ -2,8 +2,8 @@
 	Author:
 		>> Nathan TIROLF - { ntirolf@etu.uqac.ca }
 
-		(„• ֊ •„)❤  <  Have a good day !
-		--U-----U------------------------
+    („• ֊ •„)❤  <  Have a good day !
+    --U-----U------------------------
 */
 
 /* ----- INCLUDES -----*/
@@ -40,6 +40,18 @@ void AMazeManager::InitializeMazeGrid()
     {
         TArray<ETileType> Row;
         for(int X = 0; X < GridSize.X; X++) Row.Add(ETileType::Wall);
+        // {
+        //	if (Y == 0 || Y == GridSize.Y - 1)
+        //	{
+        //		Row.Add(ETileType::Wall);
+        //	} else if (X == 0 || X == GridSize.X - 1)
+        //	{
+        //		Row.Add(ETileType::Wall);
+        //	} else
+        //	{
+        //		Row.Add(ETileType::Empty);
+        //	}
+        //}
         MazeGrid.Add(Row);
     }
 }
@@ -145,8 +157,8 @@ void AMazeManager::SpawnMaze()
 			if(MazeGrid[Y][X] == ETileType::Wall)
 			{
 				FVector Location = FVector(
-					X * CellSize * CellSpriteSize - BaseX + GridDisplayOffset.X,
-					Y * CellSize * CellSpriteSize - BaseY + GridDisplayOffset.Y,
+					BaseX - X * CellSize * CellSpriteSize + GridDisplayOffset.X,
+					BaseY - Y * CellSize * CellSpriteSize + GridDisplayOffset.Y,
 					0.f
 				);
 				if(AMazeTile* Tile = World->SpawnActor<AMazeTile>(WallTileClass, Location, FRotator::ZeroRotator))
@@ -161,10 +173,13 @@ void AMazeManager::SpawnMaze()
 
 void AMazeManager::SetTileNeighbor(int X, int Y, AMazeTile* Tile)
 {
-	Tile->SetNeighbor(
-		X > 0 && MazeGrid[Y][X - 1] == ETileType::Wall,
-		X < GridSize.X - 1 && MazeGrid[Y][X + 1] == ETileType::Wall,
-		Y > 0 && MazeGrid[Y][X] == ETileType::Wall,
-		Y < GridSize.Y - 1 && MazeGrid[Y + 1][X] == ETileType::Wall
-	);
+	const bool N = Y > 0 && MazeGrid[Y][X] == ETileType::Wall;
+	const bool S = Y < GridSize.Y - 1 && MazeGrid[Y + 1][X] == ETileType::Wall;
+	const bool E = X > 0 && MazeGrid[Y][X - 1] == ETileType::Wall;
+	const bool O = X < GridSize.X - 1 && MazeGrid[Y][X + 1] == ETileType::Wall;
+
+	if (X < GridSize.X - 1)
+		GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Green, MazeGrid[Y][X + 1] == ETileType::Wall ? TEXT("Wall: True") : TEXT("Wall: False"));
+
+	Tile->SetNeighbor(N, S, E, O);
 }

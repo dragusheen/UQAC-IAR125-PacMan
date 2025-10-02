@@ -1,15 +1,13 @@
 ﻿/*
-Author:
+    Author:
 		>> Nathan TIROLF - { ntirolf@etu.uqac.ca }
 
-		(„• ֊ •„)❤  <  Have a good day !
-		--U-----U------------------------
+    („• ֊ •„)❤  <  Have a good day !
+    --U-----U------------------------
 */
 
 /* ----- INCLUDES -----*/
 #include "PacMan/Public/Maze/MazeTile.h"
-
-#include <string>
 
 
 /* ----- PUBLIC -----*/
@@ -19,7 +17,7 @@ AMazeTile::AMazeTile()
 
 	SpriteMap.Empty();
 	NeighborMap.Add("0000", "Solo");
-	NeighborMap.Add("0001", "DeadEnd_W");
+	NeighborMap.Add("0001", "DeadEnd_O");
 	NeighborMap.Add("0010", "DeadEnd_E");
 	NeighborMap.Add("0100", "DeadEnd_S");
 	NeighborMap.Add("1000", "DeadEnd_N");
@@ -55,7 +53,7 @@ void AMazeTile::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 
-	SetSprite(SpriteMap["Solo"]);
+	SetSprite(DefaultSprite);
 }
 
 void AMazeTile::SetNeighbor(const bool N, const bool S, const bool E, const bool O)
@@ -66,34 +64,15 @@ void AMazeTile::SetNeighbor(const bool N, const bool S, const bool E, const bool
 	Result[2] = E ? '1' : '0';
 	Result[3] = O ? '1' : '0';
 
-
-
-
-
-
-	for (auto n : NeighborMap)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red,n.Key);
-		GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, n.Value);
-		GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, TEXT("----"));
-	}
-
-
-
-
 	UPaperSprite *Sprite = nullptr;
+	if (DefaultSprite) Sprite = DefaultSprite;
 
 	if (NeighborMap.Contains(Result))
 	{
 		FString Neighbor = NeighborMap[Result];
 		Sprite = SpriteMap[Neighbor];
-	} else
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, Result);
-		GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Red, NeighborMap.Contains(Result) ? "Contain" : "Not Found");
 	}
 	SetSprite(Sprite);
-	GEngine->AddOnScreenDebugMessage(-1, 15.f, FColor::Red, TEXT("-------------------------------------"));
 }
 
 
