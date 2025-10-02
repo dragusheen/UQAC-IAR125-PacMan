@@ -41,9 +41,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings", meta = (ClampMin = "1"))
 	FIntPoint GridSize;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
-	FIntPoint GridDisplayOffset;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings", meta = (ClampMin = "1"))
 	float CellSize = 1.f;
 
@@ -58,12 +55,16 @@ public:
 
 private:
 	TArray<TArray<ETileType>> MazeGrid;
+	float BaseX;
+	float BaseY;
 
 	void GenerateMazeGrid();
 	void InitializeMazeGrid();
+	void AddFixedZone();
 	void GenerateMazeDFS();
 	void BreakMazeWalls();
 	bool CanBreakWall(int X, int Y);
 	void SpawnMaze();
+	void SpawnTile(int X, int Y);
 	void SetTileNeighbor(int X, int Y, AMazeTile* Tile);
 };

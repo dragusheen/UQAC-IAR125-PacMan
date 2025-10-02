@@ -29,6 +29,7 @@ void AMazeManager::BeginPlay()
 void AMazeManager::GenerateMazeGrid()
 {
     InitializeMazeGrid();
+	AddFixedZone();
     GenerateMazeDFS();
     BreakMazeWalls();
 }
@@ -36,25 +37,25 @@ void AMazeManager::GenerateMazeGrid()
 void AMazeManager::InitializeMazeGrid()
 {
     MazeGrid.Empty();
+
     for(int Y = 0; Y < GridSize.Y; Y++)
     {
         TArray<ETileType> Row;
         for(int X = 0; X < GridSize.X; X++) Row.Add(ETileType::Wall);
-        // {
-        //	if (Y == 0 || Y == GridSize.Y - 1)
-        //	{
-        //		Row.Add(ETileType::Wall);
-        //	} else if (X == 0 || X == GridSize.X - 1)
-        //	{
-        //		Row.Add(ETileType::Wall);
-        //	} else
-        //	{
-        //		Row.Add(ETileType::Empty);
-        //	}
-        //}
         MazeGrid.Add(Row);
     }
 }
+
+void AMazeManager::AddFixedZone()
+{
+	FIntPoint Middle = GridSize / 2;
+	MazeGrid[Middle.Y][Middle.X] = ETileType::Empty;
+
+	// [0, 1, 0, 0, 0, 1, 0];
+	// [0, 1, 1, 0, 1, 1, 0];
+	// [0, 0, 0, 0, 0, 0, 0];
+}
+
 
 void AMazeManager::GenerateMazeDFS()
 {
@@ -143,43 +144,37 @@ bool AMazeManager::CanBreakWall(int X, int Y)
 void AMazeManager::SpawnMaze()
 {
 	if(!WallTileClass) return;
+	if(!GetWorld()) return;
 
-	UWorld* World = GetWorld();
-	if(!World) return;
-
-	const float BaseX = (GridSize.X * CellSize * CellSpriteSize) / 2;
-	const float BaseY = (GridSize.Y * CellSize * CellSpriteSize) / 2;
+	BaseX = 0 - (GridSize.X * CellSize * CellSpriteSize) / 2;
+	BaseY = 0 - (GridSize.Y * CellSize * CellSpriteSize) / 2;
 
 	for(int Y = 0; Y < MazeGrid.Num(); Y++)
-	{
 		for(int X=0; X < MazeGrid[Y].Num(); X++)
-		{
 			if(MazeGrid[Y][X] == ETileType::Wall)
-			{
-				FVector Location = FVector(
-					BaseX - X * CellSize * CellSpriteSize + GridDisplayOffset.X,
-					BaseY - Y * CellSize * CellSpriteSize + GridDisplayOffset.Y,
-					0.f
-				);
-				if(AMazeTile* Tile = World->SpawnActor<AMazeTile>(WallTileClass, Location, FRotator::ZeroRotator))
-				{
-					Tile->SetActorScale3D(FVector(CellSize, CellSize, CellSize));
-					SetTileNeighbor(X, Y, Tile);
-				}
-			}
-		}
+				SpawnTile(X, Y);
+}
+
+void AMazeManager::SpawnTile(int X, int Y)
+{
+	FVector Location = FVector(
+		BaseX + X * CellSize * CellSpriteSize,
+		BaseY + Y * CellSize * CellSpriteSize,
+		0.f
+	);
+	if(AMazeTile* Tile = GetWorld()->SpawnActor<AMazeTile>(WallTileClass, Location, FRotator::ZeroRotator))
+	{
+		Tile->SetActorScale3D(FVector(CellSize, CellSize, CellSize));
+		SetTileNeighbor(X, Y, Tile);
 	}
 }
 
 void AMazeManager::SetTileNeighbor(int X, int Y, AMazeTile* Tile)
 {
-	const bool N = Y > 0 && MazeGrid[Y][X] == ETileType::Wall;
-	const bool S = Y < GridSize.Y - 1 && MazeGrid[Y + 1][X] == ETileType::Wall;
-	const bool E = X > 0 && MazeGrid[Y][X - 1] == ETileType::Wall;
-	const bool O = X < GridSize.X - 1 && MazeGrid[Y][X + 1] == ETileType::Wall;
-
-	if (X < GridSize.X - 1)
-		GEngine->AddOnScreenDebugMessage(-1, 60.f, FColor::Green, MazeGrid[Y][X + 1] == ETileType::Wall ? TEXT("Wall: True") : TEXT("Wall: False"));
+	const bool N = Y < GridSize.Y - 1 && MazeGrid[Y + 1][X] == ETileType::Wall;
+	const bool S = Y > 0 && MazeGrid[Y - 1][X] == ETileType::Wall;
+	const bool E = X < GridSize.X - 1 && MazeGrid[Y][X + 1] == ETileType::Wall;
+	const bool O = X > 0 && MazeGrid[Y][X - 1] == ETileType::Wall;
 
 	Tile->SetNeighbor(N, S, E, O);
 }
