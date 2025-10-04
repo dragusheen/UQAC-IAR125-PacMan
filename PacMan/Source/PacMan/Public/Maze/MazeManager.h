@@ -22,6 +22,9 @@ enum class ETileType : uint8
 {
 	Wall UMETA(DisplayName = "Wall"),
 	Empty UMETA(DisplayName = "Empty"),
+	PacMan UMETA(DisplayName = "PacMan"),
+	Point UMETA(DisplayName = "Point"),
+	PacGun UMETA(DisplayName = "PacGun"),
 };
 
 
@@ -61,7 +64,7 @@ private:
 	void GenerateMazeGrid();
 	void InitializeMazeGrid();
 	void AddFixedZone();
-	void GenerateMazeDFS();
+	void GenerateMazeDfs();
 	void BreakMazeWalls();
 	bool CanBreakWall(int X, int Y);
 	void SpawnMaze();

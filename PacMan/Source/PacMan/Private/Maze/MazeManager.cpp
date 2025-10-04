@@ -30,7 +30,7 @@ void AMazeManager::GenerateMazeGrid()
 {
     InitializeMazeGrid();
 	AddFixedZone();
-    GenerateMazeDFS();
+    GenerateMazeDfs();
     BreakMazeWalls();
 	AddFixedZone();
 }
@@ -49,32 +49,32 @@ void AMazeManager::InitializeMazeGrid()
 
 void AMazeManager::AddFixedZone()
 {
-	const int PatternPacManHeight = 5;
-	const int PatternPacManWidth = 5;
-	int PatternPacMan[PatternPacManHeight][PatternPacManWidth]{
-		{0, 0, 0, 0, 0},
-		{0, 1, 1, 1, 0},
-		{0, 1, 0, 1, 0},
-		{0, 1, 0, 1, 0},
-		{0, 0, 0, 0, 0},
+	constexpr int PatternPacManHeight = 5;
+	constexpr int PatternPacManWidth = 5;
+	constexpr ETileType PatternPacMan[PatternPacManHeight][PatternPacManWidth]{
+		{ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point},
+		{ETileType::Point, ETileType::Wall, ETileType::Wall, ETileType::Wall, ETileType::Point},
+		{ETileType::Point, ETileType::Wall, ETileType::Empty, ETileType::Wall, ETileType::Point},
+		{ETileType::Point, ETileType::Wall, ETileType::Point, ETileType::Wall, ETileType::Point},
+		{ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point},
 	};
 	for (int Y = 0; Y < PatternPacManHeight; Y++)
 		for (int X = 0; X < PatternPacManWidth; X++)
-			MazeGrid[GridSize.Y / 2 - PatternPacManHeight / 2 + Y][GridSize.X / 2 - PatternPacManWidth / 2 + X] = PatternPacMan[Y][X] == 1 ? ETileType::Wall : ETileType::Empty;
+			MazeGrid[GridSize.Y / 2 - PatternPacManHeight / 2 + Y][GridSize.X / 2 - PatternPacManWidth / 2 + X] = PatternPacMan[Y][X];
 
-	const int PatternHeight = 3;
-	const int PatternWidth = 7;
-	int Pattern[PatternHeight][PatternWidth]{
-		{0, 1, 0, 0, 0, 1, 0},
-		{0, 1, 1, 0, 1, 1, 0},
-		{0, 0, 0, 0, 0, 0, 0},
+	constexpr int PatternHeight = 3;
+	constexpr int PatternWidth = 7;
+	constexpr ETileType Pattern[PatternHeight][PatternWidth]{
+		{ETileType::Point, ETileType::Wall, ETileType::Empty, ETileType::Empty, ETileType::Empty, ETileType::Wall, ETileType::Point},
+		{ETileType::Point, ETileType::Wall, ETileType::Wall, ETileType::Empty, ETileType::Wall, ETileType::Wall, ETileType::Point},
+		{ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point},
 	};
 	for (int Y = 0; Y < PatternHeight; Y++)
 		for (int X = 0; X < PatternWidth; X++)
-			MazeGrid[GridSize.Y - 2 - Y][GridSize.X / 2 - PatternWidth / 2 + X] = Pattern[Y][X] == 1 ? ETileType::Wall : ETileType::Empty;
+			MazeGrid[GridSize.Y - 2 - Y][GridSize.X / 2 - PatternWidth / 2 + X] = Pattern[Y][X];
 }
 
-void AMazeManager::GenerateMazeDFS()
+void AMazeManager::GenerateMazeDfs()
 {
     constexpr  int StartX = 1;
     constexpr  int StartY = 1;
@@ -91,10 +91,7 @@ void AMazeManager::GenerateMazeDFS()
 
         TArray<FIntPoint> ShuffledDirs = Directions;
         for(int i=ShuffledDirs.Num()-1; i>0; i--)
-        {
-            int j = FMath::RandRange(0, i);
-            ShuffledDirs.Swap(i,j);
-        }
+            ShuffledDirs.Swap(i,FMath::RandRange(0, i));
 
         for(FIntPoint Dir : ShuffledDirs)
         {
@@ -117,17 +114,17 @@ void AMazeManager::GenerateMazeDFS()
 void AMazeManager::BreakMazeWalls()
 {
     int TotalWalls = 0;
-    for(int Y=1; Y<GridSize.Y-1; Y++)
-        for(int X=1; X<GridSize.X-1; X++)
+    for(int Y = 1; Y < GridSize.Y - 1; Y++)
+        for(int X = 1; X < GridSize.X - 1; X++)
             if(MazeGrid[Y][X] == ETileType::Wall)
                 TotalWalls++;
 
     int NumRandomBreaks = FMath::RoundToInt(TotalWalls * (DestructionRate / 100.f));
 
-    for(int i=0; i<NumRandomBreaks; i++)
+    for(int i = 0; i < NumRandomBreaks; i++)
     {
-        int X = FMath::RandRange(1, GridSize.X-2);
-        int Y = FMath::RandRange(1, GridSize.Y-2);
+        const int X = FMath::RandRange(1, GridSize.X-2);
+        const int Y = FMath::RandRange(1, GridSize.Y-2);
 
         if(CanBreakWall(X,Y)) MazeGrid[Y][X] = ETileType::Empty;
     }
@@ -140,13 +137,13 @@ bool AMazeManager::CanBreakWall(int X, int Y)
 	const TArray<FIntPoint> Neighbors = { {0,1}, {0,-1}, {1,0}, {-1,0} };
 	bool N = false, S = false, E = false, W = false;
 
-	for(FIntPoint Off : Neighbors)
+	for(const FIntPoint Off : Neighbors)
 	{
-		int NX = X + Off.X;
-		int NY = Y + Off.Y;
-		if(NX <=0 || NX >= GridSize.X-1 || NY <=0 || NY >= GridSize.Y-1) continue;
+		int Nx = X + Off.X;
+		int Ny = Y + Off.Y;
+		if(Nx <=0 || Nx >= GridSize.X - 1 || Ny <=0 || Ny >= GridSize.Y - 1) continue;
 
-		if(MazeGrid[NY][NX] == ETileType::Empty)
+		if(MazeGrid[Ny][Nx] == ETileType::Empty)
 		{
 			if(Off.X == 0 && Off.Y == 1) N = true;
 			else if(Off.X == 0 && Off.Y == -1) S = true;
@@ -167,8 +164,8 @@ void AMazeManager::SpawnMaze()
 	BaseY = 0 - (GridSize.Y * CellSize * CellSpriteSize) / 2;
 
 	for(int Y = 0; Y < MazeGrid.Num(); Y++)
-		for(int X=0; X < MazeGrid[Y].Num(); X++)
-			if(MazeGrid[Y][X] == ETileType::Wall)
+		for(int X = 0; X < MazeGrid[Y].Num(); X++)
+			if(MazeGrid[Y][X] != ETileType::Empty)
 				SpawnTile(X, Y);
 }
 
@@ -179,10 +176,18 @@ void AMazeManager::SpawnTile(int X, int Y)
 		BaseY + Y * CellSize * CellSpriteSize,
 		0.f
 	);
-	if(AMazeTile* Tile = GetWorld()->SpawnActor<AMazeTile>(WallTileClass, Location, FRotator::ZeroRotator))
+
+	switch (MazeGrid[Y][X])
 	{
-		Tile->SetActorScale3D(FVector(CellSize, CellSize, CellSize));
-		SetTileNeighbor(X, Y, Tile);
+		case ETileType::Wall:
+			if(AMazeTile* Tile = GetWorld()->SpawnActor<AMazeTile>(WallTileClass, Location, FRotator::ZeroRotator))
+			{
+				Tile->SetActorScale3D(FVector(CellSize, CellSize, CellSize));
+				SetTileNeighbor(X, Y, Tile);
+			}
+			break;
+		default:
+			break;
 	}
 }
 
