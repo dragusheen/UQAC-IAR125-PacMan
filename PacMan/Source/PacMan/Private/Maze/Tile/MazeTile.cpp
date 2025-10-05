@@ -7,7 +7,7 @@
 */
 
 /* ----- INCLUDES -----*/
-#include "PacMan/Public/Maze/MazeTile.h"
+#include "Maze/Tile/MazeTile.h"
 
 
 /* ----- PUBLIC -----*/

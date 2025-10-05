@@ -11,8 +11,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MazeTile.h"
 #include "GameFramework/Actor.h"
+#include "Tile/MazeTile.h"
 #include "MazeManager.generated.h"
 
 
@@ -63,11 +63,11 @@ private:
 
 	void GenerateMazeGrid();
 	void InitializeMazeGrid();
-	void AddFixedZone();
+	void AddFixedZone(const bool Large = false);
 	void GenerateMazeDfs();
 	void BreakMazeWalls();
-	bool CanBreakWall(int X, int Y);
+	bool CanBreakWall(const int X, const int Y);
 	void SpawnMaze();
-	void SpawnTile(int X, int Y);
-	void SetTileNeighbor(int X, int Y, AMazeTile* Tile);
+	void SpawnTile(const int X, const int Y);
+	void SetTileNeighbor(const int X, const int Y, AMazeTile* Tile);
 };
