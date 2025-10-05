@@ -179,12 +179,13 @@ void AMazeManager::SpawnMaze()
 
 	for(int Y = 0; Y < MazeGrid.Num(); Y++)
 		for(int X = 0; X < MazeGrid[Y].Num(); X++)
-			if(MazeGrid[Y][X] != ETileType::Empty)
-				SpawnTile(X, Y);
+			SpawnTile(X, Y);
 }
 
 void AMazeManager::SpawnTile(const int X, const int Y)
 {
+	if(MazeGrid[Y][X] == ETileType::Empty) return;
+
 	const FVector Location = FVector(
 		BaseX + X * CellSize * CellSpriteSize,
 		BaseY + Y * CellSize * CellSpriteSize,
@@ -198,6 +199,13 @@ void AMazeManager::SpawnTile(const int X, const int Y)
 			{
 				Tile->SetActorScale3D(FVector(CellSize, CellSize, CellSize));
 				SetTileNeighbor(X, Y, Tile);
+			}
+			break;
+	case ETileType::Point:
+			if(AMazeTilePoint* Tile = GetWorld()->SpawnActor<AMazeTilePoint>(PointTileClass, Location, FRotator::ZeroRotator))
+			{
+				auto Tmp = Tile->GetActorLocation();
+				Tile->SetActorScale3D(FVector(CellSize, CellSize, CellSize));
 			}
 			break;
 		default:

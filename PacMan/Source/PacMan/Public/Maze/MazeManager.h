@@ -13,6 +13,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Tile/MazeTile.h"
+#include "Tile/MazeTilePoint.h"
 #include "MazeManager.generated.h"
 
 
@@ -55,6 +56,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	TSubclassOf<AMazeTile> WallTileClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	TSubclassOf<AMazeTilePoint> PointTileClass;
 
 private:
 	TArray<TArray<ETileType>> MazeGrid;
