@@ -13,6 +13,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Tile/MazeTile.h"
+#include "Engine/World.h"
 #include "MazeManager.generated.h"
 
 
@@ -70,6 +71,5 @@ private:
 	void SpawnMaze();
 	void SpawnTile(const int X, const int Y);
 	void SetTileNeighbor(const int X, const int Y, AMazeTile* Tile);
-
-	void RebuildNavMeshOnce();
+	
 };
