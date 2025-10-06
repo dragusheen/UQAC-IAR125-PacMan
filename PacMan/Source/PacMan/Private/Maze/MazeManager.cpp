@@ -201,7 +201,7 @@ void AMazeManager::SpawnTile(const int X, const int Y)
 				SetTileNeighbor(X, Y, Tile);
 			}
 			break;
-	case ETileType::Point:
+		case ETileType::Point:
 			if(AMazeTilePoint* Tile = GetWorld()->SpawnActor<AMazeTilePoint>(PointTileClass, Location, FRotator::ZeroRotator))
 			{
 				auto Tmp = Tile->GetActorLocation();

@@ -35,6 +35,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	UPaperFlipbookComponent* FlipbookComponent;
 
+	UPROPERTY(VisibleAnywhere, Category = "Component")
+	USceneComponent* Root;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	UPaperFlipbook* Flipbook;

@@ -15,16 +15,19 @@ AMazeTilePoint::AMazeTilePoint()
 {
 	PrimaryActorTick.bCanEverTick = false;
 
+	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+	RootComponent = Root;
+
+	FlipbookComponent = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("FlipbookComponent"));
+	FlipbookComponent->SetupAttachment(Root);
+	FlipbookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionComponent"));
 	CollisionBox->InitBoxExtent(FVector(8.f, 8.f, 8.f));
 	CollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CollisionBox->SetCollisionObjectType(ECC_WorldDynamic);
 	CollisionBox->SetCollisionResponseToAllChannels(ECR_Overlap);
-	RootComponent = CollisionBox;
-
-	FlipbookComponent = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("FlipbookComponent"));
-	FlipbookComponent->SetupAttachment(RootComponent);
-	FlipbookComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	CollisionBox->SetupAttachment(Root);
 }
 
 void AMazeTilePoint::BeginPlay()
