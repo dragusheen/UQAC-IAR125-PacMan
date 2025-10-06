@@ -45,7 +45,6 @@ AMazeTile::AMazeTile()
 	CollisionBox->SetupAttachment(Root);
 	CollisionBox->SetCollisionProfileName(TEXT("BlockAll"));
 	CollisionBox->SetGenerateOverlapEvents(false);
-
 	CollisionBox->SetCanEverAffectNavigation(true);
 }
 
