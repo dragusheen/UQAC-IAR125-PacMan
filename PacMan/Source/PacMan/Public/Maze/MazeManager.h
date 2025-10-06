@@ -70,4 +70,6 @@ private:
 	void SpawnMaze();
 	void SpawnTile(const int X, const int Y);
 	void SetTileNeighbor(const int X, const int Y, AMazeTile* Tile);
+
+	void RebuildNavMeshOnce();
 };

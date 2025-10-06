@@ -8,6 +8,10 @@
 
 /* ----- INCLUDES -----*/
 #include "Maze/MazeManager.h"
+#include "NavigationSystem.h"
+#include "NavMesh/NavMeshBoundsVolume.h"
+#include "Kismet/GameplayStatics.h"
+
 
 
 /* ----- PUBLIC -----*/
@@ -22,6 +26,8 @@ void AMazeManager::BeginPlay()
 
 	GenerateMazeGrid();
 	SpawnMaze();
+	RebuildNavMeshOnce();
+
 }
 
 
@@ -181,6 +187,7 @@ void AMazeManager::SpawnMaze()
 		for(int X = 0; X < MazeGrid[Y].Num(); X++)
 			if(MazeGrid[Y][X] != ETileType::Empty)
 				SpawnTile(X, Y);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Il a fini de spawn le maze"));
 }
 
 void AMazeManager::SpawnTile(const int X, const int Y)
@@ -214,3 +221,27 @@ void AMazeManager::SetTileNeighbor(const int X, const int Y, AMazeTile* Tile)
 
 	Tile->SetNeighbor(N, S, E, O);
 }
+
+void AMazeManager::RebuildNavMeshOnce()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Rebulid rentre dans fonction"));
+	// Récupère le NavMeshBoundsVolume existant dans la scène
+	TArray<AActor*> NavVolumes;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ANavMeshBoundsVolume::StaticClass(), NavVolumes);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Rebulid 1"));
+
+	if (NavVolumes.Num() == 0) return;
+
+	ANavMeshBoundsVolume* NavVolume = Cast<ANavMeshBoundsVolume>(NavVolumes[0]);
+	if (!NavVolume) return;
+
+	// Force le rebuild du NavMesh
+	if (UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld()))
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Rebulid 2"));
+		NavSys->Build(); // Génère le navmesh statique une seule fois
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Rebulid fin"));
+	}
+}
+
+

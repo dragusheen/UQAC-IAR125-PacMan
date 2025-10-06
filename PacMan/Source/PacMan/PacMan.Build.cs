@@ -15,7 +15,8 @@ public class PacMan : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
-			"Paper2D"
+			"Paper2D",
+			"NavigationSystem"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
