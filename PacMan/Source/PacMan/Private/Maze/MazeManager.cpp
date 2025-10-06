@@ -54,7 +54,7 @@ void AMazeManager::AddFixedZone(const bool Large)
 	constexpr ETileType PatternPacMan[PatternPacManHeight][PatternPacManWidth]{
 		{ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point},
 		{ETileType::Point, ETileType::Wall, ETileType::Wall, ETileType::Wall, ETileType::Point},
-		{ETileType::Point, ETileType::Wall, ETileType::Empty, ETileType::Wall, ETileType::Point},
+		{ETileType::Point, ETileType::Wall, ETileType::PacMan, ETileType::Wall, ETileType::Point},
 		{ETileType::Point, ETileType::Wall, ETileType::Point, ETileType::Wall, ETileType::Point},
 		{ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point},
 	};
@@ -179,12 +179,13 @@ void AMazeManager::SpawnMaze()
 
 	for(int Y = 0; Y < MazeGrid.Num(); Y++)
 		for(int X = 0; X < MazeGrid[Y].Num(); X++)
-			if(MazeGrid[Y][X] != ETileType::Empty)
-				SpawnTile(X, Y);
+			SpawnTile(X, Y);
 }
 
 void AMazeManager::SpawnTile(const int X, const int Y)
 {
+	if(MazeGrid[Y][X] == ETileType::Empty) return;
+
 	const FVector Location = FVector(
 		BaseX + X * CellSize * CellSpriteSize,
 		BaseY + Y * CellSize * CellSpriteSize,
@@ -198,6 +199,27 @@ void AMazeManager::SpawnTile(const int X, const int Y)
 			{
 				Tile->SetActorScale3D(FVector(CellSize, CellSize, CellSize));
 				SetTileNeighbor(X, Y, Tile);
+			}
+		break;
+		case ETileType::Point:
+			if(AMazeTilePoint* Tile = GetWorld()->SpawnActor<AMazeTilePoint>(PointTileClass, Location, FRotator::ZeroRotator))
+			{
+				Tile->SetActorScale3D(FVector(CellSize, CellSize, CellSize));
+			}
+			break;
+		case ETileType::PacMan:
+			if(APacManPlayer* PacMan = GetWorld()->SpawnActor<APacManPlayer>(PacManPlayerClass, Location, FRotator::ZeroRotator))
+			{
+				TArray<TArray<int32>> DupMaze;
+				for(int TmpY = 0; TmpY < MazeGrid.Num(); TmpY++)
+				{
+					TArray<int32> Row;
+					for(int TmpX = 0; TmpX < MazeGrid[TmpY].Num(); TmpX++)
+						Row.Add(MazeGrid[TmpY][TmpX] == ETileType::Wall ? 1 : MazeGrid[TmpY][TmpX] == ETileType::PacMan ? -1 : 0);
+					DupMaze.Add(Row);
+				}
+				PacMan->SetActorScale3D(FVector(CellSize, CellSize, CellSize));
+				if(APlayerController* PC = GetWorld()->GetFirstPlayerController()) PC->Possess(PacMan);
 			}
 			break;
 		default:
