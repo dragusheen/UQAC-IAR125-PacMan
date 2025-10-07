@@ -8,6 +8,7 @@
 
 /* ----- INCLUDES -----*/
 #include "Maze/MazeManager.h"
+#include "Ghost/Ghost.h"
 
 
 /* ----- PUBLIC -----*/
@@ -22,6 +23,7 @@ void AMazeManager::BeginPlay()
 
 	GenerateMazeGrid();
 	SpawnMaze();
+	SpawnGhosts();
 }
 
 
@@ -235,4 +237,46 @@ void AMazeManager::SetTileNeighbor(const int X, const int Y, AMazeTile* Tile)
 	const bool O = X > 0 && MazeGrid[Y][X - 1] == ETileType::Wall;
 
 	Tile->SetNeighbor(N, S, E, O);
+}
+
+void AMazeManager::SpawnGhosts()
+{
+	if(!GetWorld()) return;
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("spawnGhost"));
+
+	// Coordonnées fixes pour la "maison des fantômes" en bas au milieu
+	int HomeStartX = GridSize.X / 2 - 2; // maison fait 5 tiles de large
+	int HomeY = GridSize.Y - 5;          // ligne du bas de la maison (à ajuster selon ta grille)
+
+	// Tiles exactes pour chaque fantôme, pas de superposition
+	TArray<FIntPoint> GhostSpawnTiles = {
+		FIntPoint(HomeStartX + 2, HomeY),     // Red     (centre bas)
+		FIntPoint(HomeStartX + 1, HomeY + 1), // Pink    (à gauche du centre)
+		FIntPoint(HomeStartX + 3, HomeY + 1), // Cyan    (à droite du centre)
+		FIntPoint(HomeStartX + 2, HomeY + 2)  // Orange  (au-dessus du centre)
+	};
+
+	TArray<TSubclassOf<AGhost>> GhostClasses = { RedGhostClass, PinkGhostClass, CyanGhostClass, OrangeGhostClass };
+
+	for(int i = 0; i < GhostSpawnTiles.Num(); i++)
+	{
+		FIntPoint Tile = GhostSpawnTiles[i];
+
+		FVector SpawnLocation = FVector(
+		BaseX + Tile.X * CellSize * CellSpriteSize + i*10.f,
+			BaseY + Tile.Y * CellSize * CellSpriteSize,
+			0.f
+		); 
+
+		if(GhostClasses[i])
+		{
+			AGhost* Ghost = GetWorld()->SpawnActor<AGhost>(GhostClasses[i], SpawnLocation, FRotator::ZeroRotator);
+			if(Ghost)
+			{
+				Ghost->SpawnDefaultController();
+				Ghost->PrimaryActorTick.bCanEverTick = true;
+			}
+		}
+	}
 }

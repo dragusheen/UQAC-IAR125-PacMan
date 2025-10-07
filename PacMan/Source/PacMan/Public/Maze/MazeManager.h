@@ -64,6 +64,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	TSubclassOf<APacManPlayer> PacManPlayerClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	TSubclassOf<class AGhost> RedGhostClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	TSubclassOf<class AGhost> PinkGhostClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	TSubclassOf<class AGhost> CyanGhostClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	TSubclassOf<class AGhost> OrangeGhostClass;
+
 private:
 	TArray<TArray<ETileType>> MazeGrid;
 	float BaseX;
@@ -78,4 +90,5 @@ private:
 	void SpawnMaze();
 	void SpawnTile(const int X, const int Y);
 	void SetTileNeighbor(const int X, const int Y, AMazeTile* Tile);
+	void SpawnGhosts();
 };
