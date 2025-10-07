@@ -69,6 +69,6 @@ private:
 	void MoveLeft();
 	void MoveRight();
 
-	bool CanMove(FVector Direction);
-	void UpdateFlipbookRotation();
+	bool CanMove(const FVector Direction) const;
+	void UpdateFlipbookRotation() const;
 };

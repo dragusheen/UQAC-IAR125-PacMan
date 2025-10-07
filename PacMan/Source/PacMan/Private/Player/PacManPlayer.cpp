@@ -54,7 +54,6 @@ void APacManPlayer::Tick(float DeltaTime)
         if (CanMove(CurrentDirection))
         {
             SetActorLocation(NewLocation);
-            GEngine->AddOnScreenDebugMessage(-1, 60, FColor::Yellow, "Player Movement");
         }
         else
         {
@@ -75,27 +74,27 @@ void APacManPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 
 /* ----- PRIVATE -----*/
-void APacManPlayer::MoveUp()    { NextDirection = FVector(0, 1, 0); NextRotation = EPacManDirection::Up; }
-void APacManPlayer::MoveDown()  { NextDirection = FVector(0, -1, 0); NextRotation = EPacManDirection::Down; }
+void APacManPlayer::MoveUp()    { NextDirection = FVector(0, -1, 0); NextRotation = EPacManDirection::Up; }
+void APacManPlayer::MoveDown()  { NextDirection = FVector(0, 1, 0); NextRotation = EPacManDirection::Down; }
 void APacManPlayer::MoveLeft()  { NextDirection = FVector(-1, 0, 0); NextRotation = EPacManDirection::Left; }
 void APacManPlayer::MoveRight() { NextDirection = FVector(1, 0, 0); NextRotation = EPacManDirection::Right; }
 
-void APacManPlayer::UpdateFlipbookRotation()
+void APacManPlayer::UpdateFlipbookRotation() const
 {
     FRotator NewRot = FRotator::ZeroRotator;
     switch (NextRotation)
     {
         case EPacManDirection::Up:
-            NewRot = FRotator(0.f, 90.f, 90.f);
+            NewRot = FRotator(0.f, -90.f, -90.f);
             break;
         case EPacManDirection::Down:
-            NewRot = FRotator(0.f, -90.f, 90.f);
+            NewRot = FRotator(0.f, 90.f, -90.f);
             break;
         case EPacManDirection::Left:
-            NewRot = FRotator(180.f, 0.f, 90.f);
+            NewRot = FRotator(180.f, 0.f, -90.f);
             break;
         case EPacManDirection::Right:
-            NewRot = FRotator(0.f, 0.f, 90.f);
+            NewRot = FRotator(0.f, 0.f, -90.f);
             break;
         default:
             break;
@@ -103,10 +102,10 @@ void APacManPlayer::UpdateFlipbookRotation()
     FlipbookComponent->SetWorldRotation(NewRot);
 }
 
-bool APacManPlayer::CanMove(FVector Direction)
+bool APacManPlayer::CanMove(const FVector Direction) const
 {
-    FVector Start = GetActorLocation();
-    FVector End = Start + Direction * 16.f;
+    const FVector Start = GetActorLocation();
+    const FVector End = Start + Direction * 16.f;
     FHitResult Hit;
 
     FCollisionQueryParams Params;
