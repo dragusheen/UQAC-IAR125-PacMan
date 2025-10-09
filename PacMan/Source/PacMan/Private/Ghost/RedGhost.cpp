@@ -6,15 +6,4 @@
 #include "Kismet/GameplayStatics.h"
 
 
-void ARedGhost::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	APacManPlayer* Pac = Cast<APacManPlayer>(UGameplayStatics::GetActorOfClass(GetWorld(), APacManPlayer::StaticClass()));
-	if (Pac && !bIsDead)
-	{
-		Seek(Pac->GetActorLocation(), DeltaTime);
-	}
-}
-
 

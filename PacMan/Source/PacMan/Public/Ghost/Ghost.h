@@ -34,24 +34,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost|Settings")
 	float MaxSpeed = 200.f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ghost|Movement")
-	FVector Velocity;
 
-	// === STATE ===
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost|AI")
-	bool bIsFrightened = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ghost|AI")
-	bool bIsDead = false;
-
-public:
-	virtual void Tick(float DeltaTime) override;
-	
-	virtual void Seek(const FVector& Target, float DeltaTime);
-	virtual void Die();
-	virtual void SetFrightenedMode(bool bActive);
-	virtual void ResetToHome(const FVector& HomeLocation);
-
-protected:
-	FVector HomeLocation;
+// public:
+// 	virtual void Tick(float DeltaTime) override;
+// 	
+// 	// virtual void Seek(const FVector& Target, float DeltaTime);
+// 	// virtual void Die();
+// 	// virtual void SetFrightenedMode(bool bActive);
+// 	// virtual void ResetToHome(const FVector& HomeLocation);
+//
+// protected:
+// 	FVector HomeLocation;
 };

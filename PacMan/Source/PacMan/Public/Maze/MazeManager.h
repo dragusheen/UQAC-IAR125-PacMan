@@ -27,6 +27,7 @@ enum class ETileType : uint8
 	PacMan UMETA(DisplayName = "PacMan"),
 	Point UMETA(DisplayName = "Point"),
 	PacGun UMETA(DisplayName = "PacGun"),
+	RedGhost UMETA(DisplayName = "RedGhost"),
 };
 
 

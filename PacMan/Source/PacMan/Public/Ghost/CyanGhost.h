@@ -10,8 +10,6 @@ UCLASS()
 class PACMAN_API ACyanGhost : public AGhost
 {
 	GENERATED_BODY()
-
-public:
-	virtual void Tick(float DeltaTime) override;
+	
 };
 

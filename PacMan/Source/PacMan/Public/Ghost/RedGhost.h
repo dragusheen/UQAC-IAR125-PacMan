@@ -5,12 +5,14 @@
 #include "CoreMinimal.h"
 #include "Ghost.h"
 #include "RedGhost.generated.h"
-
+                                                                                                    
 UCLASS()
 class PACMAN_API ARedGhost : public AGhost
 {
 	GENERATED_BODY()
 
-public:
-	virtual void Tick(float DeltaTime) override;
+	// === BEHAVIOR TREE ===
+	UPROPERTY(EditAnywhere, Category="AI")
+	class UBehaviorTree* BehaviorTree;
+	
 };

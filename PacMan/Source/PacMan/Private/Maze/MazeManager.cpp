@@ -9,7 +9,9 @@
 /* ----- INCLUDES -----*/
 #include "Maze/MazeManager.h"
 #include "Ghost/Ghost.h"
-
+#include "NavigationSystem.h"
+#include "Components/CapsuleComponent.h"
+#include "NavMesh/NavMeshBoundsVolume.h"
 
 /* ----- PUBLIC -----*/
 AMazeManager::AMazeManager()
@@ -23,12 +25,11 @@ void AMazeManager::BeginPlay()
 
 	GenerateMazeGrid();
 	SpawnMaze();
-	SpawnGhosts();
 }
 
 
 /* ----- PRIVATE -----*/
-void AMazeManager::GenerateMazeGrid()
+void AMazeManager::GenerateMazeGrid()                                    
 {
     InitializeMazeGrid();
 	AddFixedZone();
@@ -69,7 +70,7 @@ void AMazeManager::AddFixedZone(const bool Large)
 		constexpr int PatternHeight = 2;
 		constexpr int PatternWidth = 5;
 		constexpr ETileType Pattern[PatternHeight][PatternWidth]{
-			{ETileType::Wall, ETileType::Empty, ETileType::Empty, ETileType::Empty, ETileType::Wall},
+			{ETileType::Wall, ETileType::Empty, ETileType::RedGhost, ETileType::Empty, ETileType::Wall},
 			{ETileType::Wall, ETileType::Wall, ETileType::Empty, ETileType::Wall, ETileType::Wall},
 		};
 		for (int Y = 0; Y < PatternHeight; Y++)
@@ -80,7 +81,7 @@ void AMazeManager::AddFixedZone(const bool Large)
 		constexpr int PatternHeight = 3;
 		constexpr int PatternWidth = 7;
 		constexpr ETileType Pattern[PatternHeight][PatternWidth]{
-			{ETileType::Point, ETileType::Wall, ETileType::Empty, ETileType::Empty, ETileType::Empty, ETileType::Wall, ETileType::Point},
+			{ETileType::Point, ETileType::Wall, ETileType::Empty, ETileType::RedGhost, ETileType::Empty, ETileType::Wall, ETileType::Point},
 			{ETileType::Point, ETileType::Wall, ETileType::Wall, ETileType::Empty, ETileType::Wall, ETileType::Wall, ETileType::Point},
 			{ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point, ETileType::Point},
 		};
@@ -224,6 +225,62 @@ void AMazeManager::SpawnTile(const int X, const int Y)
 				if(APlayerController* PC = GetWorld()->GetFirstPlayerController()) PC->Possess(PacMan);
 			}
 			break;
+		// case ETileType::RedGhost:
+		// 	{
+		// 		if (!RedGhostClass) break;
+		//
+		// 		FActorSpawnParameters SpawnParams;
+		// 		// Essaye AdjustIfPossibleButAlwaysSpawn pour que l'engine tente un léger ajustement
+		// 		SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+		//
+		// 		if (AGhost* Tile = GetWorld()->SpawnActor<AGhost>(RedGhostClass, Location, FRotator::ZeroRotator, SpawnParams))
+		// 		{
+		// 			Tile->SetActorScale3D(FVector(CellSize, CellSize, CellSize));
+		// 			Tile->SpawnDefaultController();
+		// 		}
+		// 	}
+		// 	break;
+			case ETileType::RedGhost:
+				{
+					if (!RedGhostClass) break;
+
+					FVector InitialLocation = Location; // position calculée par SpawnTile
+
+					// Délai pour attendre que le NavMesh dynamique soit prêt
+					FTimerHandle TimerHandle;
+					GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, InitialLocation]()
+					{
+						UNavigationSystemV1* NavSys = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+						if (!NavSys) return;
+
+						FNavLocation ProjectedLoc;
+						const FVector ProjectExtent(200.f, 200.f, 400.f);
+
+						if (NavSys->ProjectPointToNavigation(InitialLocation, ProjectedLoc, ProjectExtent))
+						{
+							FVector SpawnLoc = ProjectedLoc.Location;
+
+							if (AGhost* DefaultGhost = Cast<AGhost>(RedGhostClass->GetDefaultObject()))
+							{
+								if (UCapsuleComponent* Cap = DefaultGhost->FindComponentByClass<UCapsuleComponent>())
+								{
+									SpawnLoc.Z += Cap->GetScaledCapsuleHalfHeight();
+								}
+							}
+
+							FActorSpawnParameters Params;
+							Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+							if (AGhost* Ghost = GetWorld()->SpawnActor<AGhost>(RedGhostClass, SpawnLoc, FRotator::ZeroRotator, Params))
+							{
+								Ghost->SetActorScale3D(FVector(CellSize));
+								Ghost->SpawnDefaultController(); // le BehaviorTree devrait maintenant fonctionner
+							}
+						}
+
+					}, 0.2f, false); // 0.2s suffisent généralement
+				}
+				break;
 		default:
 			break;
 	}
@@ -237,46 +294,4 @@ void AMazeManager::SetTileNeighbor(const int X, const int Y, AMazeTile* Tile)
 	const bool O = X > 0 && MazeGrid[Y][X - 1] == ETileType::Wall;
 
 	Tile->SetNeighbor(N, S, E, O);
-}
-
-void AMazeManager::SpawnGhosts()
-{
-	if(!GetWorld()) return;
-
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("spawnGhost"));
-
-	// Coordonnées fixes pour la "maison des fantômes" en bas au milieu
-	int HomeStartX = GridSize.X / 2 - 2; // maison fait 5 tiles de large
-	int HomeY = GridSize.Y - 5;          // ligne du bas de la maison (à ajuster selon ta grille)
-
-	// Tiles exactes pour chaque fantôme, pas de superposition
-	TArray<FIntPoint> GhostSpawnTiles = {
-		FIntPoint(HomeStartX + 2, HomeY),     // Red     (centre bas)
-		FIntPoint(HomeStartX + 1, HomeY + 1), // Pink    (à gauche du centre)
-		FIntPoint(HomeStartX + 3, HomeY + 1), // Cyan    (à droite du centre)
-		FIntPoint(HomeStartX + 2, HomeY + 2)  // Orange  (au-dessus du centre)
-	};
-
-	TArray<TSubclassOf<AGhost>> GhostClasses = { RedGhostClass, PinkGhostClass, CyanGhostClass, OrangeGhostClass };
-
-	for(int i = 0; i < GhostSpawnTiles.Num(); i++)
-	{
-		FIntPoint Tile = GhostSpawnTiles[i];
-
-		FVector SpawnLocation = FVector(
-		BaseX + Tile.X * CellSize * CellSpriteSize + i*10.f,
-			BaseY + Tile.Y * CellSize * CellSpriteSize,
-			0.f
-		); 
-
-		if(GhostClasses[i])
-		{
-			AGhost* Ghost = GetWorld()->SpawnActor<AGhost>(GhostClasses[i], SpawnLocation, FRotator::ZeroRotator);
-			if(Ghost)
-			{
-				Ghost->SpawnDefaultController();
-				Ghost->PrimaryActorTick.bCanEverTick = true;
-			}
-		}
-	}
 }
